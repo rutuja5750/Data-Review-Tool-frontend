@@ -6,32 +6,25 @@ export interface QueryResult {
   subject_id: number;
 }
 
-export interface BackendResponse {
-  data: {
-    success: boolean;
-    data: QueryResult[];
-    sql_query: string;
-    message: string;
-    rowcount: number;
-  };
-  sql: string;
-}
-
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
   sql_query?: string;
   data?: QueryResult[];
   rowcount?: number;
+  answer?: string;
 }
 
+export type ModelType = 'sqlCoder' | 'gemini' | 'openAI' | 'rag' | 'langchain' | 'agent';
+
 export const chatService = {
-  sendQuery: async (prompt: string): Promise<Message> => {
+  sendQuery: async (prompt: string, model: ModelType): Promise<Message> => {
     console.log(prompt);
     
     try {
       const response = await axios.post(`${API_BASE_URL}/query`, {
-        prompt: prompt
+        prompt: prompt,
+        model: model
       });
       
       const { data } = response.data;
@@ -43,6 +36,7 @@ export const chatService = {
         content: data.message,
         sql_query: data.sql_query,
         data: data.data,
+        answer: data.answer,  
         rowcount: data.rowcount
       };
     } catch (error) {

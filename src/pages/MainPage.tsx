@@ -4,17 +4,17 @@ import Sidebar from "@/components/Sidebar";
 
 function MainPage() {
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-background">
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         {/* Fixed sidebar */}
-        <div className="fixed w-64">
+        <div className="w-64 shrink-0 border-r">
           <Sidebar />
         </div>
-        {/* Main content with proper spacing */}
-        <main className="flex-1 ml-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        {/* Main content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
           <MainContent />
-        </main>
+        </div>
       </div>
     </div>
   )
