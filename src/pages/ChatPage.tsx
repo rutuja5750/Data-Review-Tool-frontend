@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { Send, Database, Bot, User } from 'lucide-react'
-import { Message, chatService, ModelType } from '../services/chatService'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -11,7 +10,9 @@ import { cn } from '@/lib/utils'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-function MainContent() {
+import { Message, chatService, ModelType } from '../services/chat.service'
+
+function ChatPage() {
   const [conversations, setConversations] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -215,7 +216,7 @@ function MainContent() {
               value={selectedModel}
               onValueChange={(value: string) => setSelectedModel(value as ModelType)}
             >
-              <SelectTrigger className="w-[140px] text-white">
+              <SelectTrigger className="w-[140px">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
               <SelectContent>
@@ -249,4 +250,4 @@ function MainContent() {
   )
 }
 
-export default MainContent
+export default ChatPage

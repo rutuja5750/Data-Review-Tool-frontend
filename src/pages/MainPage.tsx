@@ -1,6 +1,7 @@
-import MainContent from "./MainContent";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+
+import { Outlet } from "react-router";
 
 function MainPage() {
   return (
@@ -13,7 +14,7 @@ function MainPage() {
         </div>
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <MainContent />
+          <Outlet />
         </div>
       </div>
     </div>

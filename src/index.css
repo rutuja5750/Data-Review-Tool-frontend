@@ -79,7 +79,6 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -183,4 +182,17 @@ button:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+
+/* Fix for autofill making text invisible */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #333 !important; /* Dark text color that will be visible */
+  -webkit-box-shadow: 0 0 0 1000px #f8f8f8 inset !important; /* Light background */
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
 }
