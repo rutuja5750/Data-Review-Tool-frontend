@@ -32,7 +32,7 @@ jobs:
           # App build & deploy settings
           app_location: "/"            # Root of the app
           api_location: ""             # No API directory
-          output_location: "build"     # Build output folder (e.g., React = 'build')
+          output_location: "dist"     # Build output folder (e.g., React = 'build')
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
