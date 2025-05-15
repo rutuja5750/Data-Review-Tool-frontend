@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react'
 import { Send, Database, Bot, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -9,15 +8,61 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useLocation, useNavigate, useParams } from 'react-router'
+import { authService } from '../services/user.service'
 
 import { Message, chatService, ModelType } from '../services/chat.service'
 
 function ChatPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { chatId } = useParams();
   const [conversations, setConversations] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedModel, setSelectedModel] = useState<ModelType>('openAI');
+  const [selectedModel, setSelectedModel] = useState<ModelType>('gemini');
+  const [currentChatId, setCurrentChatId] = useState<string | null>(chatId || null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasInitialized = useRef(false);
+
+  // Reset state on mount or when navigating to new chat
+  useEffect(() => {
+    if (!chatId) {
+      hasInitialized.current = true;
+      setCurrentChatId(null);
+      setConversations([{
+        role: "assistant",
+        content: "Hello! I can help you query your database. What would you like to know?"
+      }]);
+    }
+  }, [chatId]);
+
+  // Load chat history if chatId is provided
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (chatId) {
+        try {
+          const chatHistory = await chatService.getChatHistory(chatId);
+          setConversations(chatHistory.messages);
+          setCurrentChatId(chatId);
+        } catch (error) {
+          console.error('Error loading chat history:', error);
+        }
+      }
+    };
+    loadChatHistory();
+  }, [chatId]);
+
+  // Handle query from navigation
+  useEffect(() => {
+    const query = location.state?.query;
+    if (query) {
+      // Clear the state after reading it
+      navigate(location.pathname, { replace: true, state: {} });
+      setInputMessage(query);
+      sendQuery(query);
+    }
+  }, [location.state]);
 
   // Auto-scroll to the bottom when new messages arrive
   useEffect(() => {
@@ -28,27 +73,52 @@ function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Fetch initial greeting from AI when component mounts
-  useEffect(() => {
-    setConversations([{
-      role: "assistant",
-      content: "Hello! I can help you query your database. What would you like to know?"
-    }]);
-  }, []);
-
   // Function to send query to backend
   const sendQuery = async (query: string) => {
+    if (!query.trim()) return;
+    
     setIsLoading(true);
+    setInputMessage(""); // Clear input immediately
     
     try {
       // Add user message to conversation
-      setConversations(prev => [...prev, {
+      const userMessage: Message = {
         role: "user",
         content: query
-      }]);
+      };
+      
+      const updatedConversations = [...conversations, userMessage];
+      setConversations(updatedConversations);
 
       const response = await chatService.sendQuery(query, selectedModel);
-      setConversations(prev => [...prev, response]);
+      const finalConversations = [...updatedConversations, response];
+      setConversations(finalConversations);
+
+      // Save or update chat history
+      const user = authService.getCurrentUser();
+      if (!user || !user._id) {
+        console.warn('No authenticated user found or invalid user data. Chat history will not be saved.');
+        return;
+      }
+
+      try {
+        if (currentChatId) {
+          // Update existing chat
+          await chatService.updateChatHistory(currentChatId, finalConversations);
+        } else {
+          // Create new chat
+          const chatHistory = await chatService.createChatHistory(
+            query.slice(0, 30) + (query.length > 30 ? '...' : ''), // Use first 30 chars as title
+            finalConversations,
+            user._id
+          );
+          setCurrentChatId(chatHistory._id);
+          navigate(`/chat/${chatHistory._id}`);
+        }
+      } catch (error) {
+        console.error('Error saving chat history:', error);
+        // Continue with the conversation even if saving fails
+      }
     } catch (error) {
       console.error('Error fetching response:', error);
       setConversations(prev => [...prev, {
@@ -66,9 +136,6 @@ function ChatPage() {
     if (inputMessage.trim() === '' || isLoading) return;
     
     const userMessage = inputMessage.trim();
-    setInputMessage("");
-    
-    // Send the message to the backend
     sendQuery(userMessage);
   };
 

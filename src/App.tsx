@@ -8,6 +8,7 @@ import RegisterPage from './pages/RegisterPage';
 import ChatPage from './pages/ChatPage';
 
 import { authService } from "./services/user.service"
+import StandardQueryPage from './pages/StandardQueryPage';
 
 
 interface AuthProviderProps {
@@ -26,7 +27,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 function App() {
   return (
     <div className="App">
-      
       <BrowserRouter>
         <Routes>
             {/* Public routes */}
@@ -36,19 +36,18 @@ function App() {
 
 
             {/* Private Routes */}
-            <Route 
+            <Route
               path="/"
               element={<AuthProvider><MainPage/></AuthProvider>}
             >
                 <Route index element={<Navigate to="/chat" replace />} />
                 <Route path="/chat" element={<ChatPage/>} />
-
-                <Route path="/task" element={<h1>Task Page</h1>} />
+                <Route path="/chat/:chatId" element={<ChatPage/>} />
+                <Route path="/standard-queries" element={<StandardQueryPage/>} />
+                {/* <Route path="/task" element={<h1>Task Page</h1>} /> */}
             </Route>
-
         </Routes>
       </BrowserRouter>
-    
     </div>
   )
 }

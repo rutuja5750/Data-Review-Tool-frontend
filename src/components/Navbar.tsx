@@ -1,10 +1,24 @@
-import React, { useState } from 'react'
-import { Menu, X, Bell, Search, ChevronDown, User } from 'lucide-react'
-// import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useState } from 'react'
+import { Menu, X, Bell, Search, ChevronDown, User, LogOut } from 'lucide-react'
+import { authService } from "../services/user.service";
 
-// Navbar Component with improved design
+
+import { useNavigate } from "react-router";
+
+interface UserData {
+  username?: string;
+}
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  const user = authService.getCurrentUser() as UserData
+
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
   
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm py-3 px-4">
@@ -35,15 +49,33 @@ function Navbar() {
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
           
-          <div className="flex items-center cursor-pointer space-x-2 border-l pl-3 ml-2">
-            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
-              <User size={16} />
+          <div className="relative">
+            <div 
+              className="flex items-center cursor-pointer space-x-2 border-l pl-3 ml-2"
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+            >
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                <User size={16} />
+              </div>
+              <div className="hidden md:block">
+                <div className="text-sm font-medium">{user?.username || 'User'}</div>
+                <div className="text-xs text-gray-500">Admin</div>
+              </div>
+              <ChevronDown size={16} className={`text-gray-500 transition-transform ${isProfileOpen ? 'transform rotate-180' : ''}`} />
             </div>
-            <div className="hidden md:block">
-              <div className="text-sm font-medium">User Name</div>
-              <div className="text-xs text-gray-500">Admin</div>
-            </div>
-            <ChevronDown size={16} className="text-gray-500" />
+
+            {/* Profile Dropdown */}
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <LogOut size={16} className="mr-2" />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

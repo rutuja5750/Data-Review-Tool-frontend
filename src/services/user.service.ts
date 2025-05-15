@@ -73,14 +73,19 @@ export const authService = {
   },
 
   // Get current authenticated user
-  getCurrentUser(): unknown {
+  getCurrentUser(): { _id: string; email: string; username: string } | null {
     const userStr = localStorage.getItem('user');
     if (!userStr) return null;
     
     try {
-      return JSON.parse(userStr);
+      const user = JSON.parse(userStr);
+      if (!user || !user._id) {
+        console.warn('Invalid user data in localStorage');
+        return null;
+      }
+      return user;
     } catch (e) {
-      console.log(e);
+      console.error('Error parsing user data:', e);
       return null;
     }
   },
@@ -95,6 +100,5 @@ export const authService = {
     return localStorage.getItem('token');
   },
   
-};
+};export default apiClient;
 
-export default apiClient;
