@@ -27,7 +27,7 @@ export interface ChatHistory {
 
 
 
-export type ModelType = 'sqlCoder' | 'gemini' | 'openAI' | 'rag' | 'langchain' | 'agent';
+export type ModelType = 'sqlCoder' | 'gemini' | 'openAI' | 'rag' | 'langchain' | 'agent' | 'gemini_rag';
 const user = authService.getCurrentUser();
 const user_id = user?._id;
 
@@ -37,7 +37,7 @@ export const chatService = {
     console.log(prompt);
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/query`, {
+      const response = await axios.post(`${API_BASE_URL}/api/ai/query`, {
         prompt: prompt,
         model: model,
         user_id: user_id
@@ -45,7 +45,7 @@ export const chatService = {
       
       const { data } = response.data;
       
-      console.log("RESPONSE" , data);
+      console.log("SQL LLM RESPONSE" , data);
       
       return {
         role: 'assistant',
@@ -106,6 +106,7 @@ export const chatService = {
   getUserChatHistories: async (user_id: string): Promise<ChatHistory[]> => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/chat-history/${user_id}`);
+      console.log("response",response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching chat histories:', error);

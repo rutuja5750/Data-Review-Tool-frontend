@@ -9,6 +9,7 @@ import ChatPage from './pages/ChatPage';
 
 import { authService } from "./services/user.service"
 import StandardQueryPage from './pages/StandardQueryPage';
+import { ThemeProvider } from './context/ThemeContext';
 
 
 interface AuthProviderProps {
@@ -26,9 +27,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
+    <ThemeProvider>
+      <div className="App min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+        <BrowserRouter>
+          <Routes>
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />}/>
@@ -46,9 +48,10 @@ function App() {
                 <Route path="/standard-queries" element={<StandardQueryPage/>} />
                 {/* <Route path="/task" element={<h1>Task Page</h1>} /> */}
             </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </ThemeProvider>
   )
 }
 
