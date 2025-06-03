@@ -30,10 +30,7 @@ function ChatPage() {
     if (!chatId) {
       hasInitialized.current = true;
       setCurrentChatId(null);
-      setConversations([{
-        role: "assistant",
-        content: "Hello! I can help you query your database. What would you like to know?"
-      }]);
+      setConversations([]); // Clear conversations when starting new chat
     }
   }, [chatId]);
 
@@ -154,16 +151,7 @@ function ChatPage() {
 
     return (
       <div className="space-y-4">
-        {/* Display normal content or answer if available */}
-        {message.answer ? (
-          // <p className="text-sm">{message.answer}</p>
-          <Markdown remarkPlugins={[remarkGfm]}>{message.answer}</Markdown>
-
-        ) : (
-          // <p className="text-sm">{message.content}</p>
-          <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown>
-
-        )}
+        
 
         {message.sql_query && (
           <div className="bg-muted rounded-lg p-4">
@@ -176,6 +164,11 @@ function ChatPage() {
             </pre>
           </div>
         )}
+
+        {message.content && (
+          <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown>
+        )}
+
 
         {message.data && message.data.length > 0 && (
           <div className="overflow-x-auto">
@@ -207,14 +200,20 @@ function ChatPage() {
                 ))}
               </tbody>
             </table>
+
+            {message.rowcount && (
+              <p className="text-sm text-muted-foreground mb-2">
+                Returned {message.rowcount} rows
+              </p>
+            )}
+
           </div>
         )}
+        
+        <Markdown remarkPlugins={[remarkGfm]}>{message.answer}</Markdown>
 
-        {message.rowcount && (
-          <p className="text-sm text-muted-foreground">
-            Returned {message.rowcount} rows
-          </p>
-        )}
+    
+        
       </div>
     );
   };
@@ -277,18 +276,19 @@ function ChatPage() {
       
       {/* Input Area */}
       <div className="border-t bg-background p-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSendMessage} className="flex gap-2">
             <Select
               value={selectedModel}
               onValueChange={(value: string) => setSelectedModel(value as ModelType)}
             >
-              <SelectTrigger className="w-[140px">
+              <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="sqlCoder">SQL Coder</SelectItem>
                 <SelectItem value="gemini">Gemini</SelectItem>
+                <SelectItem value="gemini_rag">Gemini RAG</SelectItem>
                 <SelectItem value="openAI">OpenAI</SelectItem>
                 <SelectItem value="langchain">Langchain</SelectItem>
                 <SelectItem value="agent">Agent</SelectItem>

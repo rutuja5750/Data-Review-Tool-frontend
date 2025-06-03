@@ -3,7 +3,7 @@ import {AuthResponse, LoginCredentials, RegisterData} from '../models/user.model
 
 // Define the base URL for API requests
 
-const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/user` : 'http://localhost:8000/user';
+const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth` : 'http://localhost:8000/api/auth';
 
 // Create axios instance with default config
 const apiClient = axios.create({
